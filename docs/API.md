@@ -1,3 +1,23 @@
+# Nocturne adapter contract
+
+Derived from the code in Nocturne v2 `index.html` (function `acquire`). Authentication header: `X-Key` (the only custom header Nocturne sends).
+
+| Nocturne does | Service answers |
+|---|---|
+| `POST {base}/api/jobs`, JSON `{url}`, checks only `response.ok`, reads `id` | `202 {"id"}` |
+| polls `GET {base}/api/jobs/{id}` every 800 ms, reads `status`, `meta`, `error` (ignores the HTTP status) | `{status, meta, error, progress}`; unknown id: `404 {"status":"error","error":"..."}` so the error shows instead of an endless spinner |
+| stops on `status === "error"` (shows `error`) or `"ready"`; any other value just keeps waiting | `resolving`, `downloading`, `converting`, `ready`, `error` |
+| uses `meta.title/artist/album/year/duration/cover` | same keys; `year` is a 4-char string, `duration` seconds, `cover` URL or `null` |
+| `GET {base}/api/jobs/{id}/file`, on resume adds `Range: bytes=N-`, reads `content-length` and `content-type`, accepts 200 or 206 | `audio/mp4`, `Accept-Ranges: bytes`, 206 with `Content-Range` |
+| `DELETE {base}/api/jobs/{id}` (result ignored) | `204`, also when the job is already gone |
+| `fetch(meta.cover)` **with no headers** | `meta.cover` = `{service}/api/jobs/{id}/cover?t=<HMAC token>`; the token is valid for that job only and is not the access key |
+
+Known mismatches in Nocturne (not changed, since Nocturne was not to be modified):
+- If the first cover request fails, Nocturne retries it once after sending `DELETE`, so that retry gets a 404 and the song is saved without a cover.
+- Polling never gives up on its own: if the service stops answering with JSON, the sheet stays on "Looking up the song..." until Cancel is tapped.
+
+---
+
 # Video Downloader API — Technical Documentation
 
 > **Audience**: This document is intended to be fed into an AI agent to generate an iOS Shortcut that integrates with the self-hosted Video Downloader backend.
