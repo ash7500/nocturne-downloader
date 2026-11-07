@@ -30,6 +30,8 @@ from app.services.job_manager import job_manager  # noqa: E402
 from app.models.schemas import JobStatus  # noqa: E402
 
 client = TestClient(app, raise_server_exceptions=False)
+# All download routes now require the access key (set in conftest.py)
+client.headers.update({"X-Key": os.environ["ACCESS_KEY"]})
 
 
 # ---------------------------------------------------------------------------
