@@ -11,7 +11,9 @@ services:
       - downloads:/app/downloads
     environment:
       - DOWNLOADS_DIR=/app/downloads
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
+      - ACCESS_KEY=${ACCESS_KEY:?Set ACCESS_KEY in .env}
+      - PUBLIC_URL=${PUBLIC_URL:-}
       - PORT=${PORT:-8000}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

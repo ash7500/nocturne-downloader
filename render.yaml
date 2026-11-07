@@ -1,0 +1,14 @@
+# Render Blueprint. New > Blueprint > pick this repo. ACCESS_KEY is generated for you (Dashboard > Environment).
+services:
+  - type: web
+    name: nocturne-downloader
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ACCESS_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false   # you are asked for it on first deploy: your Nocturne origin, e.g. https://yourname.github.io
